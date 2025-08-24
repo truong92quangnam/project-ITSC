@@ -6,8 +6,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore as admin_firestore
 from google.auth.credentials import AnonymousCredentials
 from google.cloud import storage as gcs
-from fastapi import FastAPI, HTTPException
-
+from fastapi import FastAPI, HTTPException, WebSocket
+from fastapi.responses import JSONResponse
 
 #Cài đặt môi trường
 os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8080"
@@ -33,21 +33,22 @@ class FirestoreJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 #Chỗ này là để bên FE-gallery lấy dữ liệu ra 
-@app.get("/urls/{collection_name}") #collection sẽ là gallery đã được tồn tại trong firestore
-async def get_urls_from_collection(collection_name:str):
+@app.get("/urls/{collection_name}")
+async def get_urls_from_collection(collection_name: str):
     try:
-        collection_def=tracking.collection(collection_name)
-        docs=collection_def.stream()
-
-        urls=[]
+        collection_ref = tracking.collection(collection_name)
+        query=collection_ref.order_by('time', direction=admin_firestore.Query.DESCENDING )
+        docs=query.stream()
+        result=[]
         for doc in docs:
-            url_data=doc.to_dict()
-            url_data['url']
-            urls.append(url_data)
-        return urls
-    
+            doc_data=doc.to_dict()
+            result.append(doc_data['url'])
+        JSONResponse(content={'url':result})
+        
+        return result
     except Exception as e:
         print("Lỗi: ", e)
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 #Chỗ này là để export dữ liệu ảnh vào một folder
 def export_from_storage(filename):
     local_folder=f'D:/itsc/images/{filename}'
