@@ -43,6 +43,7 @@ class ConnectionManager:
             if collection_name not in self.collection_connections:
                 self.collection_connections[collection_name] = []
             self.collection_connections[collection_name].append(websocket)
+    
         
         print(f"New connection to {collection_name}. Total: {len(self.active_connections)}")
 
