@@ -75,7 +75,7 @@ def import_to_storage():
         print('haha')
         
 
-#Chỗ này là để bên AI đẩy dữ liệu vào đây
+#-----------------------------------------------Chỗ này là để bên AI đẩy dữ liệu vào đây---------------------------------------------------
 def update_to_firestore_gallery_collection(blob, folder):
     try:
         now = datetime.datetime.now()
@@ -108,7 +108,7 @@ def upload_file_to_storage(file_name, folder):
         blob.upload_from_filename('D:/itsc/Undatabase/AIService'+'/'+file_name)
         export_from_storage(blob, 'AIService')
         update_to_firestore_gallery_collection(blob, folder)
-
+#-------------------------------------------------------------------------------------------------------------------------------------------#
 
 if __name__=="__main__":
     while True:
@@ -122,7 +122,6 @@ if __name__=="__main__":
                         print(file_path)
                         upload_file_to_storage(file_name, 'Original')
                         os.remove(file_path)
-            print()
             folder='Undatabase/AIService'
             files=os.listdir(folder)
             if files:
@@ -132,7 +131,6 @@ if __name__=="__main__":
                         print(file_path)
                         upload_file_to_storage(file_name, 'AIService')
                         os.remove(file_path)
-            print()
-            break
+            
         except Exception as e:
             print(e)
