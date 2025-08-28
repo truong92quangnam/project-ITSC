@@ -36,7 +36,7 @@ class FirestoreJSONEncoder(json.JSONEncoder):
 #Chỗ này là để export dữ liệu ảnh vào một folder
 #Xuất và đẩy dữ liệu đã xong.
 def export_from_storage(blob, filename):
-    local_folder=f'itsc\images\{filename}'
+    local_folder=f'images\{filename}'
     if filename=='Original':
         local_path = os.path.join(local_folder, blob.name.replace('Original/',''))
     else:
@@ -50,7 +50,7 @@ def export_from_firestore(filename):
         data=[]
         for doc in docs:
             data.append({ "id": doc.id, **doc.to_dict() })
-            with open(f'itsc/images/firestore/{filename}.json', 'w', encoding="utf-8") as f:
+            with open(f'images/firestore/{filename}.json', 'w', encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2, cls=FirestoreJSONEncoder)
     except Exception as e:
         print(e)
@@ -87,10 +87,11 @@ def update_to_firestore_gallery_collection(blob, folder):
         doc_id=blob.name.replace('/','_').replace('.', '_')
         if folder=="Original":
             tracking.collection('Original').document(doc_id).set(data)
+            export_from_firestore('Original')
         else:
             tracking.collection('AIService').document(doc_id).set(data)
+            export_from_firestore("AIService")
         
-        #export_from_storage()
     except Exception as e:
         print(f"Skibidi: {e}")
 
@@ -98,14 +99,14 @@ def upload_file_to_storage(file_name, folder):
     if folder=='Original':
         url_file_location="Original"+'/'+file_name
         blob = bucket.blob(url_file_location)
-        blob.upload_from_filename('itsc/Undatabase/Original'+'/'+file_name)
+        blob.upload_from_filename('Undatabase/Original'+'/'+file_name)
         export_from_storage(blob, 'Original')
         update_to_firestore_gallery_collection(blob, folder)
 
     else:
         url_file_location="AIService"+'/'+file_name
         blob = bucket.blob(url_file_location)
-        blob.upload_from_filename('itsc/Undatabase/AIService'+'/'+file_name)
+        blob.upload_from_filename('Undatabase/AIService'+'/'+file_name)
         export_from_storage(blob, 'AIService')
         update_to_firestore_gallery_collection(blob, folder)
 #-------------------------------------------------------------------------------------------------------------------------------------------#
