@@ -1,3 +1,4 @@
+import time
 import os
 import json
 import datetime
@@ -128,6 +129,6 @@ if __name__=="__main__":
                         print(file_path)
                         upload_file_to_storage(file_name, 'AIService')
                         os.remove(file_path)
-            
+            time.sleep(5)
         except Exception as e:
             print(e)
