@@ -93,20 +93,20 @@ async def get_collection_data(collection_name: str, limit: int = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# ------------Phần tử dưới này là để theo dõi các hoạt động thay đổi của dữ liệu-----------------------
+# -------------------Phần tử dưới này là để theo dõi các hoạt động thay đổi của dữ liệu-----------------------
 
 def listen_to_firestore(collection_name):
     def on_snapshot(col_snapshot, changes, read_time):
-        # Fetch latest data using Firestore client (you can also use requests to GET endpoint)
-        docs = tracking.collection(collection_name).order_by("time", direction=Query.DESCENDING).limit(10).stream()
+        docs = tracking.collection(collection_name).order_by("time", direction=Query.DESCENDING).limit().stream()
         data = []
         for doc in docs:
             doc_data = doc.to_dict()
             doc_data['id'] = doc.id
             data.append(doc_data)
-        # Broadcast to WebSocket
+        # Broadcast đến WebSocket
         asyncio.run(manager.broadcast_to_collection(json.dumps(data, cls=FirestoreJSONEncoder), collection_name))
     # Start Firestore snapshot listener
+    # Bắt đầu lắng nghe nào tình yêu của anh.
     tracking.collection(collection_name).on_snapshot(on_snapshot)
 
 def start_firestore_listener_thread(collection_name):
