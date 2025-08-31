@@ -1,5 +1,20 @@
 Before use it, u must have a file with name ServiceAccount.json. Unless, the programming will not do anything because this programming use firebase emulators.
-
+### Folder Structure
+```
+itsc/
+├── images/
+│   ├── AIService/  #  This folder is used to back up data from the database AI service.
+│   ├── firestore/ 
+|       ├── AIService.json #This 2 files json is used to save url of each collection in firestore
+|       ├── Original.json  
+│   ├── Original/   #  This folder is used to back up data from the database Original.
+├── routes/
+│   └── APIcalling    # Fetch data to Front-end 
+├── Undatabase/     #   The first gate let data go to database
+│   ├── AIService/
+|   ├── Original/ 
+└── TrackingFolder.py        # Tracking data in folder Undatabase, update database, export to 1 of 2 in images  
+```
 ### SETUP ENVIRONMENT
 1. Install Firebase CLI:
     ```cmd
