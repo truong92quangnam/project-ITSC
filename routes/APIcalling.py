@@ -105,7 +105,7 @@ def listen_to_firestore(collection_name):
             data.append(doc_data)
         # Broadcast đến WebSocket
         asyncio.run(manager.broadcast_to_collection(json.dumps(data, cls=FirestoreJSONEncoder), collection_name))
-    # Start Firestore snapshot listener
+
     # Bắt đầu lắng nghe nào tình yêu của anh.
     tracking.collection(collection_name).on_snapshot(on_snapshot)
 
@@ -115,7 +115,7 @@ def start_firestore_listener_thread(collection_name):
 
 @app.on_event("startup")
 async def startup_event():
-    # Start listeners for your collections here
+    # Lúc bắt đầu nó chạy ở phần này đầu tiên để nhảy vào các phần tử ở trên.
     start_firestore_listener_thread("Original")  # Replace with your actual collection name
 
 #Khi server FastAPI chạy, nó sẽ tạo một thread riêng để lắng nghe thay đổi của Firestore collection "Original".
