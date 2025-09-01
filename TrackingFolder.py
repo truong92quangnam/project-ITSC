@@ -35,8 +35,10 @@ def export_from_storage(blob, filename):
     local_folder=f'images\{filename}'
     if filename=='Original':
         local_path = os.path.join(local_folder, blob.name.replace('Original/',''))
-    else:
+    elif filename=='AIService':
         local_path = os.path.join(local_folder, blob.name.replace('AIService/',''))
+    else:
+        local_path = os.path.join(local_folder, blob.name.replace('Photobooth/',''))
     os.makedirs(os.path.dirname(local_path), exist_ok=True)
     blob.download_to_filename(local_path)
 
@@ -83,9 +85,11 @@ def update_to_firestore_gallery_collection(blob, folder):
         doc_id=blob.name.replace('/','_').replace('.', '_')
         if folder=="Original":
             tracking.collection('Original').document(doc_id).set(data)
-        else:
+        elif folder=="AIService":
             tracking.collection('AIService').document(doc_id).set(data)
-        
+        else:
+            tracking.collection('Photobooth').document(doc_id).set(data)
+
         #export_from_storage()
     except Exception as e:
         print(f"Skibidi: {e}")
@@ -98,12 +102,19 @@ def upload_file_to_storage(file_name, folder):
         export_from_storage(blob, 'Original')
         update_to_firestore_gallery_collection(blob, folder)
 
-    else:
+    elif folder=='AIService':
         url_file_location="AIService"+'/'+file_name
         blob = bucket.blob(url_file_location)
         blob.upload_from_filename('Undatabase/AIService'+'/'+file_name)
         export_from_storage(blob, 'AIService')
         update_to_firestore_gallery_collection(blob, folder)
+    else:
+        url_file_location="Photobooth"+'/'+file_name
+        blob = bucket.blob(url_file_location)
+        blob.upload_from_filename('Undatabase/Photobooth'+'/'+file_name)
+        export_from_storage(blob, 'Photobooth')
+        update_to_firestore_gallery_collection(blob, folder)
+
 #-------------------------------------------------------------------------------------------------------------------------------------------#
 
 if __name__=="__main__":
@@ -127,6 +138,18 @@ if __name__=="__main__":
                         print(file_path)
                         upload_file_to_storage(file_name, 'AIService')
                         os.remove(file_path)
+            
+            folder='Undatabase/Photobooth'
+            files=os.listdir(folder)
+            if files:
+                for root, __, files in os.walk(folder):
+                    for file_name in files:
+                        file_path=root+'/'+file_name
+                        print(file_path)
+                        upload_file_to_storage(file_name, 'Photobooth')
+                        os.remove(file_path)
+            
+
             time.sleep(5)
         except Exception as e:
             print(e)
