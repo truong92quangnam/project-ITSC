@@ -97,7 +97,7 @@ async def get_collection_data(collection_name: str, limit: int = None):
 
 def listen_to_firestore(collection_name):
     def on_snapshot(col_snapshot, changes, read_time):
-        docs = tracking.collection(collection_name).order_by("time", direction=Query.DESCENDING).limit().stream()
+        docs = tracking.collection(collection_name).order_by("time", direction=Query.DESCENDING).limit(100).stream()
         data = []
         for doc in docs:
             doc_data = doc.to_dict()
