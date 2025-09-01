@@ -14,4 +14,8 @@ Yếu điểm:
 - Chưa phản ứng đến trường hợp bị crash.
 Hình ảnh khi test được:
 ![alt text](image.png)
+Sau khi áp dụng dùng dưới websocket thì hình ảnh khi ra ở đây:
+![alt text](image-1.png)
+Cho thấy code hoạt động rất ổn trong việc đây dữ liệu vào và khá là mượt mà mặt dù có một chút giật giật khi đẩy ảnh vào nhưng xem như không đáng kể.
 
+Hiện tại thì cần phải testing cho AIService. Thêm folder photobooth và đẩy lại những khám phá cho bên FE để thêm vào cho kịp tiến độ (1/9/2025)
