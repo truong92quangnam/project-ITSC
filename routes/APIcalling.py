@@ -116,7 +116,9 @@ def start_firestore_listener_thread(collection_name):
 @app.on_event("startup")
 async def startup_event():
     # Lúc bắt đầu nó chạy ở phần này đầu tiên để nhảy vào các phần tử ở trên.
-    start_firestore_listener_thread("Original")  # Replace with your actual collection name
+    start_firestore_listener_thread("Original")  
+    start_firestore_listener_thread("AIService")
+    start_firestore_listener_thread("Photobooth")
 
 #Khi server FastAPI chạy, nó sẽ tạo một thread riêng để lắng nghe thay đổi của Firestore collection "Original".
 #Mỗi lần có thay đổi, dữ liệu mới nhất sẽ được lấy ra, chuyển thành JSON, và broadcast tới các client WebSocket đang lắng nghe.
