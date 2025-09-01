@@ -5,9 +5,7 @@ import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore as admin_firestore
 from google.auth.credentials import AnonymousCredentials
-from google.cloud import storage as gcs
-
-
+from google.cloud import storage as gcs 
 #Cài đặt môi trường
 os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8080"
 os.environ["STORAGE_EMULATOR_HOST"] = "http://localhost:9199"
