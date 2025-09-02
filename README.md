@@ -1,4 +1,6 @@
-Before use it, u must have a file with name ServiceAccount.json. Unless, the programming will not do anything because this programming use firebase emulators.
+### Report of API testing.
+https://github.com/truong92quangnam/itsc/blob/main/routes/README.md
+Checking all of my report for testing about API. That all is Vietnamese.
 ### Folder Structure
 ```
 itsc/
