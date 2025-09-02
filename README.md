@@ -7,15 +7,18 @@ itsc/
 ├── images/
 │   ├── AIService/  #  This folder is used to back up data from the database AI service.
 │   ├── firestore/ 
-|       ├── AIService.json #This 2 files json is used to save url of each collection in firestore
-|       ├── Original.json  
+│       ├── AIService.json #This 2 files json is used to save url of each collection in firestore
+│       ├── Original.json
+│       ├── Photobooth.json  
 │   ├── Original/   #  This folder is used to back up data from the database Original.
+│   ├── Photobooth/ #  This folder is used to back up data form the database Photobooth.
 ├── routes/
 │   └── APIcalling    # Fetch data to Front-end 
 ├── Undatabase/     #   The first gate let data go to database
 │   ├── AIService/
-|   ├── Original/ 
-└── TrackingFolder.py        # Tracking data in folder Undatabase, update database, export to 1 of 2 in images  
+│   ├── Original/ 
+│   ├── Photobooth/
+└── TrackingFolder.py  # Tracking data in folder Undatabase, update database, export to 1 of 2 in images  
 ```
 ### SETUP ENVIRONMENT
 1. Install Firebase CLI:
