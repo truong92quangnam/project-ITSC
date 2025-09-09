@@ -1,8 +1,3 @@
-import os
-folder='Undatabase'
-files=os.listdir(folder)
-
-for root, dirs, files in os.walk(folder):
-    for file_name in files:
-        file_path = os.path.join(root, file_name)
-        print(file_path)
+a={'as':1, 'asd':3}
+for i in a:
+    print(a[i])

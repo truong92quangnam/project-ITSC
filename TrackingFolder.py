@@ -79,7 +79,7 @@ def update_to_firestore_gallery_collection(blob, folder):
         now = datetime.datetime.now()
         data={
             'name': blob.name,
-            'url':f"http://localhost:9199/v0/b/{blob.bucket.name}/o/{blob.name.replace('/', '%2F')}?alt=media",
+            'url':f"https://localhost:9199/v0/b/{blob.bucket.name}/o/{blob.name.replace('/', '%2F')}?alt=media",
             'time': now
         } 
         doc_id=blob.name.replace('/','_').replace('.', '_')
@@ -117,39 +117,183 @@ def upload_file_to_storage(file_name, folder):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------#
 
+def sync_images_folders_to_storage():
+    """Monitor images/ folders and sync new files to Firebase Storage"""
+    folders_to_check = [
+        ('images/Original', 'Original'),
+        ('images/AIService', 'AIService'), 
+        ('images/Photobooth', 'Photobooth')
+    ]
+    
+    for local_folder, storage_folder in folders_to_check:
+        if os.path.exists(local_folder):
+            try:
+                # Get list of files in Firebase Storage for this folder
+                blobs = list(bucket.list_blobs(prefix=f"{storage_folder}/"))
+                storage_files = {blob.name.replace(f"{storage_folder}/", "") for blob in blobs}
+                
+                # Get list of files in local folder
+                local_files = [f for f in os.listdir(local_folder) if os.path.isfile(os.path.join(local_folder, f))]
+                
+                # Find files that are in local but not in storage
+                new_files = [f for f in local_files if f not in storage_files]
+                
+                if new_files:
+                    print(f"🆕 Found {len(new_files)} new files in {local_folder}")
+                    for file_name in new_files:
+                        try:
+                            local_path = os.path.join(local_folder, file_name)
+                            url_file_location = f"{storage_folder}/{file_name}"
+                            blob = bucket.blob(url_file_location)
+                            blob.upload_from_filename(local_path)
+                            update_to_firestore_gallery_collection(blob, storage_folder)
+                            print(f"✅ Auto-synced {storage_folder}: {file_name}")
+                        except Exception as e:
+                            print(f"❌ Error auto-syncing {storage_folder}/{file_name}: {e}")
+                else:
+                    print(f"✅ {local_folder} - All files synced")
+                    
+            except Exception as e:
+                print(f"❌ Error checking {local_folder}: {e}")
+
+#-------------------------------------------------------------------------------------------------------------------------------------------#
+
+def sync_existing_files_to_storage():
+    """Sync all existing files in images/ folders to Firebase Storage"""
+    print("🔄 Syncing existing files to Firebase Storage...")
+    
+    # Sync Original folder
+    original_path = 'images/Original'
+    if os.path.exists(original_path):
+        files = [f for f in os.listdir(original_path) if os.path.isfile(os.path.join(original_path, f))]
+        print(f"📂 Found {len(files)} files in {original_path}")
+        for file_name in files:
+            try:
+                local_path = os.path.join(original_path, file_name)
+                url_file_location = f"Original/{file_name}"
+                blob = bucket.blob(url_file_location)
+                blob.upload_from_filename(local_path)
+                update_to_firestore_gallery_collection(blob, 'Original')
+                print(f"✅ Synced Original: {file_name}")
+            except Exception as e:
+                print(f"❌ Error syncing Original/{file_name}: {e}")
+    
+    # Sync AIService folder  
+    aiservice_path = 'images/AIService'
+    if os.path.exists(aiservice_path):
+        files = [f for f in os.listdir(aiservice_path) if os.path.isfile(os.path.join(aiservice_path, f))]
+        print(f"📂 Found {len(files)} files in {aiservice_path}")
+        for file_name in files:
+            try:
+                local_path = os.path.join(aiservice_path, file_name)
+                url_file_location = f"AIService/{file_name}"
+                blob = bucket.blob(url_file_location)
+                blob.upload_from_filename(local_path)
+                update_to_firestore_gallery_collection(blob, 'AIService')
+                print(f"✅ Synced AIService: {file_name}")
+            except Exception as e:
+                print(f"❌ Error syncing AIService/{file_name}: {e}")
+    
+    # Sync Photobooth folder
+    photobooth_path = 'images/Photobooth'
+    if os.path.exists(photobooth_path):
+        files = [f for f in os.listdir(photobooth_path) if os.path.isfile(os.path.join(photobooth_path, f))]
+        print(f"📂 Found {len(files)} files in {photobooth_path}")
+        for file_name in files:
+            try:
+                local_path = os.path.join(photobooth_path, file_name)
+                url_file_location = f"Photobooth/{file_name}"
+                blob = bucket.blob(url_file_location)
+                blob.upload_from_filename(local_path)
+                update_to_firestore_gallery_collection(blob, 'Photobooth')
+                print(f"✅ Synced Photobooth: {file_name}")
+            except Exception as e:
+                print(f"❌ Error syncing Photobooth/{file_name}: {e}")
+    
+    print("🎉 Sync completed!")
+
 if __name__=="__main__":
+    print("🚀 TrackingFolder Started!")
+    print("👀 Monitoring Undatabase folders...")
+    print("📁 Original: Undatabase/Original → images/Original → Firebase Storage")  
+    print("🤖 AIService: Undatabase/AIService → images/AIService → Firebase Storage")
+    print("📸 Photobooth: Undatabase/Photobooth → images/Photobooth → Firebase Storage")
+    print("=" * 50)
+    
+    # First, sync all existing files to Firebase Storage
+    sync_existing_files_to_storage()
+    print("=" * 50)
+    print("👀 Starting continuous monitoring...")
+    
     while True:
         try:
+            print("🔍 Checking Undatabase folders...")
+            
+            # Check Original folder
             folder='Undatabase/Original'
-            files=os.listdir(folder)
-            if files:
-                for root, __, files in os.walk(folder):
-                    for file_name in files:
-                        file_path = root+'/'+file_name
-                        print(file_path)
-                        upload_file_to_storage(file_name, 'Original')
-                        os.remove(file_path)
+            if os.path.exists(folder):
+                files=os.listdir(folder)
+                if files:
+                    print(f"📂 Processing {len(files)} files in {folder}")
+                    for root, __, files in os.walk(folder):
+                        for file_name in files:
+                            file_path = root+'/'+file_name
+                            print(f"📤 Uploading: {file_path}")
+                            upload_file_to_storage(file_name, 'Original')
+                            os.remove(file_path)
+                            print(f"✅ Processed: {file_name}")
+                else:
+                    print(f"📂 {folder} is empty")
+            else:
+                print(f"📂 Creating {folder}...")
+                os.makedirs(folder, exist_ok=True)
+            
+            # Check AIService folder
             folder='Undatabase/AIService'
-            files=os.listdir(folder)
-            if files:
-                for root, __, files in os.walk(folder):
-                    for file_name in files:
-                        file_path = root+'/'+file_name
-                        print(file_path)
-                        upload_file_to_storage(file_name, 'AIService')
-                        os.remove(file_path)
+            if os.path.exists(folder):
+                files=os.listdir(folder)
+                if files:
+                    print(f"📂 Processing {len(files)} files in {folder}")
+                    for root, __, files in os.walk(folder):
+                        for file_name in files:
+                            file_path = root+'/'+file_name
+                            print(f"📤 Uploading: {file_path}")
+                            upload_file_to_storage(file_name, 'AIService')
+                            os.remove(file_path)
+                            print(f"✅ Processed: {file_name}")
+                else:
+                    print(f"📂 {folder} is empty")
+            else:
+                print(f"📂 Creating {folder}...")
+                os.makedirs(folder, exist_ok=True)
             
+            # Check Photobooth folder
             folder='Undatabase/Photobooth'
-            files=os.listdir(folder)
-            if files:
-                for root, __, files in os.walk(folder):
-                    for file_name in files:
-                        file_path=root+'/'+file_name
-                        print(file_path)
-                        upload_file_to_storage(file_name, 'Photobooth')
-                        os.remove(file_path)
-            
+            if os.path.exists(folder):
+                files=os.listdir(folder)
+                if files:
+                    print(f"📂 Processing {len(files)} files in {folder}")
+                    for root, __, files in os.walk(folder):
+                        for file_name in files:
+                            file_path=root+'/'+file_name
+                            print(f"📤 Uploading: {file_path}")
+                            upload_file_to_storage(file_name, 'Photobooth')
+                            os.remove(file_path)
+                            print(f"✅ Processed: {file_name}")
+                else:
+                    print(f"📂 {folder} is empty")
+            else:
+                print(f"📂 Creating {folder}...")
+                os.makedirs(folder, exist_ok=True)
 
+            print("🔍 Checking images/ folders for new files...")
+            # Also check images/ folders for new files
+            sync_images_folders_to_storage()
+
+            print("💤 Sleeping for 5 seconds...")
             time.sleep(5)
         except Exception as e:
-            print(e)
+            print(f"❌ Error: {e}")
+            import traceback
+            traceback.print_exc()
+            time.sleep(5)

@@ -1,5 +1,6 @@
 {
   "emulators": {
+    "host": "26.245.127.99",
     "storage": {
       "port": 9199
     },
